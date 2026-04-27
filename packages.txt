@@ -1,3 +1,3 @@
-# System-level packages needed by RDKit rendering on Streamlit Cloud
+
 libxrender1
 libxext6
