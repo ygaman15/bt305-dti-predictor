@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DTI Predictor | Drug-Target Interaction & ADMET Analysis</title>
+  <meta name="description" content="Predict drug-target interactions and analyse ADMET properties using a deep-learning model powered by transformer encoders and Morgan fingerprints." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ─── ANIMATED BACKGROUND ─────────────────────────────────────────── -->
+  <div class="bg-canvas" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- ─── NAV ─────────────────────────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <span class="brand-icon">⚛</span>
+        <span class="brand-text">DTI<span class="brand-accent">Predict</span></span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#predict">Predict</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#about">About</a></li>
+      </ul>
+      <a href="https://colab.research.google.com/drive/10ynKW5Ad6J_ShsQ-kbR_2YQOXuDppSLs" target="_blank" class="btn btn-sm btn-outline">Open Notebook ↗</a>
+    </div>
+  </nav>
+
+  <!-- ─── HERO ─────────────────────────────────────────────────────────── -->
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Deep Learning · Transformer · ADMET
+      </div>
+      <h1 class="hero-title">
+        Drug–Target Interaction<br />
+        <span class="gradient-text">Predictor &amp; ADMET Analyser</span>
+      </h1>
+      <p class="hero-subtitle">
+        Enter a drug's SMILES string and a protein sequence to predict binding probability,
+        explore ADMET properties, and discover structurally similar molecules — powered by a
+        Transformer + Attention deep-learning model trained on BindingDB.
+      </p>
+      <a href="#predict" class="btn btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        Start Analysis
+      </a>
+    </div>
+
+    <!-- Feature pills -->
+    <div class="hero-pills">
+      <span class="pill">Morgan Fingerprints</span>
+      <span class="pill">Transformer Encoder</span>
+      <span class="pill">Attention Mechanism</span>
+      <span class="pill">Lipinski Rules</span>
+      <span class="pill">Tanimoto Similarity</span>
+    </div>
+  </header>
+
+  <!-- ─── MODEL ARCHITECTURE STATS ─────────────────────────────────────── -->
+  <section class="stats-bar">
+    <div class="stat">
+      <span class="stat-num">2000</span>
+      <span class="stat-label">Training Samples</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-num">1024</span>
+      <span class="stat-label">Drug Features</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-num">512</span>
+      <span class="stat-label">Max Protein Length</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-num">128</span>
+      <span class="stat-label">Embedding Dim</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <span class="stat-num">4</span>
+      <span class="stat-label">Attention Heads</span>
+    </div>
+  </section>
+
+  <!-- ─── INPUT FORM ────────────────────────────────────────────────────── -->
+  <section class="section" id="predict">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="section-tag">Step 1</div>
+        <h2 class="section-title">Submit Your Compound</h2>
+        <p class="section-sub">Provide the drug SMILES and protein amino-acid sequence below.</p>
+      </div>
+
+      <div class="form-card glass-card">
+        <!-- Example buttons -->
+        <div class="example-bar">
+          <span class="example-label">Quick Examples:</span>
+          <button class="example-btn" id="ex-aspirin" onclick="loadExample('aspirin')">💊 Aspirin</button>
+          <button class="example-btn" id="ex-caffeine" onclick="loadExample('caffeine')">☕ Caffeine</button>
+          <button class="example-btn" id="ex-ethanol" onclick="loadExample('ethanol')">🧪 Ethanol</button>
+        </div>
+
+        <div class="form-grid">
+          <!-- Drug SMILES -->
+          <div class="form-group full-width" id="smiles-group">
+            <label class="form-label" for="smiles-input">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M5.34 18.66l-1.41 1.41M21 12h-2M5 12H3M18.66 18.66l-1.41-1.41M6.75 6.75L5.34 5.34M12 21v-2M12 5V3"/></svg>
+              Drug SMILES String
+            </label>
+            <div class="input-wrapper">
+              <input
+                type="text"
+                id="smiles-input"
+                class="form-input mono"
+                placeholder="e.g. CC(=O)OC1=CC=CC=C1C(=O)O"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <button class="clear-btn" onclick="clearField('smiles-input')" title="Clear">✕</button>
+            </div>
+            <span class="form-hint">Enter a valid SMILES notation for your drug molecule.</span>
+          </div>
+
+          <!-- Protein sequence -->
+          <div class="form-group full-width" id="protein-group">
+            <label class="form-label" for="protein-input">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              Protein Amino-Acid Sequence
+            </label>
+            <div class="input-wrapper">
+              <textarea
+                id="protein-input"
+                class="form-input form-textarea mono"
+                placeholder="e.g. MAHVRGLQLPGCLALAALCSLVH..."
+                rows="4"
+                spellcheck="false"
+              ></textarea>
+              <button class="clear-btn textarea-clear" onclick="clearField('protein-input')" title="Clear">✕</button>
+            </div>
+            <div class="seq-meta">
+              <span class="form-hint">Single-letter amino-acid codes (A,C,D,E,F,G,H,I,K,L,M,N,P,Q,R,S,T,V,W,Y). Max 512 residues used.</span>
+              <span class="seq-counter" id="seq-counter">0 residues</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="form-actions">
+          <button class="btn btn-primary btn-lg" id="submit-btn" onclick="runAnalysis()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            Run Full Analysis
+          </button>
+          <button class="btn btn-ghost" onclick="resetAll()">Reset</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── LOADING ──────────────────────────────────────────────────────── -->
+  <div class="loading-overlay" id="loading-overlay" style="display:none;">
+    <div class="loading-card glass-card">
+      <div class="dna-loader">
+        <div class="dna-strand">
+          <div class="dna-base b1"></div>
+          <div class="dna-base b2"></div>
+          <div class="dna-base b3"></div>
+          <div class="dna-base b4"></div>
+          <div class="dna-base b5"></div>
+          <div class="dna-base b6"></div>
+        </div>
+      </div>
+      <p class="loading-text" id="loading-text">Processing molecule…</p>
+      <div class="loading-steps">
+        <div class="lstep" id="ls-fp">⬡ Computing Morgan fingerprint</div>
+        <div class="lstep" id="ls-enc">⬡ Encoding protein sequence</div>
+        <div class="lstep" id="ls-pred">⬡ Running transformer model</div>
+        <div class="lstep" id="ls-admet">⬡ Calculating ADMET profile</div>
+        <div class="lstep" id="ls-sim">⬡ Similarity search</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── RESULTS ──────────────────────────────────────────────────────── -->
+  <section class="section results-section" id="results" style="display:none;">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="section-tag">Results</div>
+        <h2 class="section-title">Analysis Report</h2>
+      </div>
+
+      <!-- ── Interaction Score Card ── -->
+      <div class="result-grid">
+        <div class="glass-card score-card" id="score-card">
+          <div class="score-label">Interaction Probability</div>
+          <div class="score-ring-wrap">
+            <svg class="score-ring" viewBox="0 0 120 120" width="160" height="160">
+              <circle class="ring-bg" cx="60" cy="60" r="50" />
+              <circle class="ring-fill" id="ring-fill" cx="60" cy="60" r="50"
+                stroke-dasharray="314" stroke-dashoffset="314" />
+            </svg>
+            <div class="score-value-wrap">
+              <span class="score-value" id="score-value">—</span>
+              <span class="score-pct">probability</span>
+            </div>
+          </div>
+          <div class="score-badge" id="score-badge">—</div>
+          <p class="score-interpretation" id="score-interpretation">—</p>
+        </div>
+
+        <!-- ── ADMET Card ── -->
+        <div class="glass-card admet-card" id="admet-card">
+          <h3 class="card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+            ADMET Profile
+          </h3>
+          <div class="admet-grid" id="admet-grid">
+            <!-- filled by JS -->
+          </div>
+          <div class="admet-flags" id="admet-flags">
+            <!-- filled by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Lipinski Table ── -->
+      <div class="glass-card table-card">
+        <h3 class="card-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
+          Lipinski Rule of Five
+        </h3>
+        <div class="table-wrap">
+          <table class="data-table" id="lipinski-table">
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th>Value</th>
+                <th>Threshold</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="lipinski-body">
+              <!-- filled by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── Similar Drugs ── -->
+      <div class="glass-card similar-card">
+        <h3 class="card-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          Structurally Similar Drugs <span class="card-sub">— 2D structures &amp; Tanimoto scores</span>
+        </h3>
+        <div class="similar-grid" id="similar-list">
+          <!-- filled by JS -->
+        </div>
+      </div>
+
+      <!-- ── Molecule Structure ── -->
+      <div class="glass-card mol-card">
+        <h3 class="card-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="3"/><circle cx="5" cy="19" r="3"/><circle cx="19" cy="19" r="3"/><line x1="12" y1="8" x2="5" y2="16"/><line x1="12" y1="8" x2="19" y2="16"/></svg>
+          Molecule Structure
+        </h3>
+        <div class="mol-display" id="mol-display">
+          <!-- SVG drawn by JS via SmilesDrawer -->
+        </div>
+        <p class="mol-smiles mono" id="mol-smiles-label"></p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ─── ABOUT / MODEL ARCHITECTURE ──────────────────────────────────── -->
+  <section class="section" id="about">
+    <div class="section-inner">
+      <div class="section-header">
+        <div class="section-tag">Architecture</div>
+        <h2 class="section-title">How It Works</h2>
+      </div>
+
+      <div class="arch-cards">
+        <div class="arch-card glass-card">
+          <div class="arch-icon">💊</div>
+          <h4>Drug Encoding</h4>
+          <p>The SMILES string is converted to a 1024-bit Morgan fingerprint (radius 2) via RDKit, then passed through a linear layer to produce a 256-dimensional drug feature vector.</p>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-card glass-card">
+          <div class="arch-icon">🧬</div>
+          <h4>Protein Encoding</h4>
+          <p>Each amino acid is mapped to an integer and embedded into a 128-dimensional space. A 2-layer Transformer Encoder with 4 attention heads captures long-range dependencies across up to 512 residues.</p>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-card glass-card">
+          <div class="arch-icon">🔗</div>
+          <h4>Fusion &amp; Prediction</h4>
+          <p>An attention layer summarises the protein features. The drug and protein vectors are concatenated (256 + 128 = 384-d), passed through two fully-connected layers, and output a sigmoid probability.</p>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-card glass-card">
+          <div class="arch-icon">📊</div>
+          <h4>ADMET Analysis</h4>
+          <p>Lipinski descriptors (MolWt, LogP, H-donors, H-acceptors) are computed with RDKit to assess drug-likeness, BBB permeability, and heuristic toxicity.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ───────────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <p>DTIPredict &mdash; BT305 Course Project &bull; Transformer-based Drug–Target Interaction Predictor</p>
+    <p class="footer-note">Results are heuristic and for educational purposes only. Not intended for clinical use.</p>
+  </footer>
+
+  <!-- ─── SCRIPTS ──────────────────────────────────────────────────────── -->
+  <!-- SmilesDrawer for molecule rendering (pure JS, no server needed) -->
+  <script src="https://unpkg.com/smiles-drawer@1.0.10/dist/smiles-drawer.min.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>

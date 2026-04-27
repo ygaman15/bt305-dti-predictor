@@ -1,0 +1,12 @@
+# ── Core ML & Chemistry ──────────────────────────────────────────
+streamlit>=1.35.0
+torch>=2.1.0
+rdkit>=2023.9.5
+PyTDC>=0.4.1
+
+# ── Data & ML utilities ──────────────────────────────────────────
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+matplotlib>=3.7.0
+Pillow>=10.0.0
